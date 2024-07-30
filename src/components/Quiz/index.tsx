@@ -1,10 +1,18 @@
 import S from "./styles.module.css"
 import {QuestionAnswer} from "../QuestionAnswer/index"
-import { useState } from "react"
+import { MouseEvent, useState } from "react"
 import { Button } from "../Button"
 import { Result } from "../Result"
+import { ProgressBar } from "../ProgressBar"
 
-const QUESTIONS =[
+export interface Question {
+    id: number
+    question: string
+    answers: string[]
+    correctAnswer: string
+}
+
+const QUESTIONS: Question[] =[
     {
         id:1,
         question: "Qual é o meu nome?",
@@ -31,23 +39,25 @@ const QUESTIONS =[
     }
 ]
 
+
+
 export function Quiz (){
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
     const [correctAnswerCount, setCorrectAnswerCount] = useState(0)
     const [isCurrentQuestionAnswered, setIsCurrentQuestionAnswered] = useState(false)
     const [isTankingQuiz, setIsTankingQuiz] = useState(true)
-    
+
+    const currentQuestionNumber = currentQuestionIndex + 1
     const quizSize = QUESTIONS.length
     
-    const handleAnswerQuestion = (event, question, answer)=>{
-        console.log(event, question, answer);
+    const handleAnswerQuestion = (event: MouseEvent<HTMLButtonElement>, question: Question, answer: string)=>{
         if(isCurrentQuestionAnswered){
             return
         }
         const isCorrectAnswer = question.correctAnswer === answer
         
         const resultClassName = isCorrectAnswer ? S.correct : S.incorrect
-        event.currentTarget.classList.toggle(resultClassName)
+        event.currentTarget.parentNode.classList.toggle(resultClassName)
         
         if(isCorrectAnswer){
             setCorrectAnswerCount(correctAnswerCount +1)
@@ -78,8 +88,9 @@ export function Quiz (){
             <div className={S.card}>
                 {isTankingQuiz ? (
                     <div className={S.quiz}>
+                        <ProgressBar size={quizSize} currentStep={currentQuestionNumber}/>
                     <header className={S.quizHeader}>
-                        <span className={S.questionCount}>Pergunta 1/3</span>
+                        <span className={S.questionCount}>Pergunta {currentQuestionNumber}/{quizSize}</span>
                         <p className={S.question}>{currentQuestion.question}</p>
                     </header>
                     <ul className={S.answers}>
